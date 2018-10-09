@@ -49,8 +49,7 @@ with open('trials.csv','wb') as f:
         w.writerows([data.values()])
     
     
-    #for m in range(len(trials)):
-     #    w.writerows(trials[m].values())
+   
     
    
 
