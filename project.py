@@ -21,19 +21,40 @@ win = visual.Window([800, 600], color = 'white', units = 'pix')
 generateTrials('project/studyTrials.csv')
 study_trials = importTrials('project/studyTrials.csv')
 pic = visual.ImageStim(win=win, mask=None,interpolate=True)
+correctFeedback = visual.TextStim(win=win,text='CORRECT',color="green",height=60)
+incorrectFeedback = visual.TextStim(win=win,text='ERROR',color="red",height=60)
 
 for trial in study_trials:
-    win.flip()
-    core.wait(0.5)
+    print trial['rep']
     pic.setImage('project/visual/' + trial['img'])
     pic.draw()
     win.flip()
     core.wait(1)
-    response = event.getKeys(keyList = ['q', '1', '0'])
-    print response
-    if trial['rep']:
+    win.flip()
+    core.wait(0.5)
+    response = event.getKeys(keyList = ['q', 'space'])
+    if trial['rep'] == 'True':
+        if len(response) != 0:
+            if response[0] == 'q':
+                break
+            elif response[0] == 'space':
+                correctFeedback.draw()
+                win.flip()
+                core.wait(1)
+            else:
+                incorrectFeedback.draw()
+                win.flip()
+                core.wait(1)
+        else:
+            incorrectFeedback.draw()
+            win.flip()
+            core.wait(1)
+    else:
+        if len(response) != 0:
+            if response[0] == 'q':
+                break
         win.flip()
-        break
+        core.wait(0.5)
 win.close()
 
 
