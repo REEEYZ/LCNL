@@ -44,11 +44,15 @@ def generateTrials(name1, name2, whichSet):
             original.append(stim)
     category = []
     if whichSet == '1':
+        i = 0
         for i in range(26):
-            category.append(info[i]['category1'] + '_' + whichSet + '.png')
+            diction = {'img': info[i]['category1'] + '_' + whichSet + '.png', 'rep': False, 'type': info[i]['relationship']}
+            category.append(diction)
     else:
+        i = 0
         for i in range(26):
-            category.append(info[i]['category2'] + '_' + whichSet + '.png')
+            diction = {'img': info[i]['category2'] + '_' + whichSet + '.png', 'rep': False, 'type': info[i]['relationship']}
+            category.append(diction)
     repeat = []
     i = 0
     while i < 20:
@@ -60,15 +64,15 @@ def generateTrials(name1, name2, whichSet):
         else:
             repeat.append(stim)
             i = i + 1
-    study_trials.extend(category)
-    study_trial = []
     i = 0
-    for i in range(160):
-        diction = {'img': study_trials[i], 'rep': False}
+    study_trial = []
+    for i in range(134):
+        diction = {'img': study_trials[i], 'rep': False, 'type': 'unrelated'}
         study_trial.append(diction)
+    study_trial.extend(category)
     i = 0
     for i in range(20):
-        diction = {'img': repeat[i], 'rep': True}
+        diction = {'img': repeat[i], 'rep': True, 'type': 'unrelated'}
         study_trial.append(diction)
     ifRepeat = True
     while ifRepeat:
@@ -96,20 +100,22 @@ def generateTrials(name1, name2, whichSet):
         if test1.__contains__(study_trial[rdm]):
             continue
         else:
+            study_trial[rdm]['rep'] = True
+            study_trial[rdm]['neworold'] = 'old'
             test1.append(study_trial[rdm])
             i = i + 1
     category2 = []
     if whichSet == '1':
         i = 0
         for i in range(26):
-            category2.append(info[i]['category2'] + '_' + whichSet + '.png')
+            diction = {'img': info[i]['category2'] + '_' + whichSet + '.png', 'rep': False, 'type': info[i]['relationship'], 'neworold': 'new'}
+            category2.append(diction)
     else:
         i = 0
         for i in range(26):
-            category2.append(info[i]['category1'] + '_' + whichSet + '.png')
-    for i in range(26):
-        diction = {'img': category2[i], 'rep': False}
-        test1.append(diction)
+            diction = {'img': info[i]['category1'] + '_' + whichSet + '.png', 'rep': False, 'type': info[i]['relationship'], 'neworold': 'new'}
+            category2.append(diction)
+    test1.extend(category2)
     i = 0
     test2 = []
     while i < 24:
@@ -121,7 +127,7 @@ def generateTrials(name1, name2, whichSet):
         if test2.__contains__(test_stim):
             continue
         else:
-            diction = {'img': test_stim, 'rep': False}
+            diction = {'img': test_stim, 'rep': False, 'type': 'exemplar', 'neworold': 'new'}
             test2.append(diction)
             i = i + 1
     test1.extend(test2)

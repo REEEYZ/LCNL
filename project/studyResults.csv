@@ -1,0 +1,5 @@
+repeat,reactTime,image category,image filename,trial number,type,response,correct
+False,0,pill,pill_1.png,1,unrelated,NA,1
+False,0,icecream,icecream_1.png,2,unrelated,NA,1
+False,0,pacifier,pacifier_1.png,3,unrelated,NA,1
+False,0,laptop,laptop_1.png,4,unrelated,NA,1
