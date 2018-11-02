@@ -157,13 +157,13 @@ with open('subject'+'_TTwb.csv','wb') as resultsFile:
                     if len(pressedKeys) < len(expKeys):
                         getKeys = event.getKeys(keyList=keys)
                         if len(getKeys) != 0:
-                            react = True
-                        #if react == False:
-                        end = time.clock()
-                        RT = end - start
-                            #RT=int(reactionTime.getTime()*(1000))  # not a good timer
-                        print RT
-                        #react = True
+                            #react = True
+                            if react == False:
+                                end = time.clock()
+                                RT = (end - start) * 1000
+                                #RT=int(reactionTime.getTime()*(1000))  # not a good timer
+                                print RT
+                                react = True
                         pressedKeys.extend(getKeys)    
                     else:
                         print pressedKeys
@@ -171,15 +171,6 @@ with open('subject'+'_TTwb.csv','wb') as resultsFile:
                 event.clearEvents()
                 if react == False:
                     RT = 'NA'
-                '''getKeys = event.getKeys(keyList=keys)
-                if len(getKeys) > 0:
-                    end = time.clock()
-                    RT = (end - start) * 1000
-                    print end
-                print getKeys
-                print pacer.pos
-                #RT=int(reactionTime*1000)  # not a good timer 
-                pressedKeys.append(getKeys)'''
 
                 core.wait(pacerTempo-(pacerTime.getTime())) # wait full time even if participant answered before time's up
                 pressedKeys = (sorted(set(pressedKeys), key = lambda x:  srtMap[x]))
