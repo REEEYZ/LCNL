@@ -43,6 +43,7 @@ for trial in study_trials:
             elif response[0] == 'space':
                 endTime = time.clock()
                 reactTime = endTime - startTime
+                print reactTime
                 diction['reactTime'] = reactTime
                 win.flip()
                 core.wait(1)
