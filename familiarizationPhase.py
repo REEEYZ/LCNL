@@ -1,16 +1,25 @@
-###################################
+##################################
 ########fill in subject ID #######
 
 subject =''
 
-###################################
-###################################
+
+##################################
+##################################
 
 ######### timers  ################
 
-pacerTempo = 1.2 # speed for first x practice trials
+pacerTempo = 1.2 # speed for first 
+                 # x practice trials
 
+##################################
+##################################
 
+########$ interval time limit ####
+
+intervalTime = 1 #TODO
+
+##################################
 ##################################
 
 import random
@@ -97,11 +106,15 @@ endText=visual.TextStim(win=win, height=40,
                  color='black')
 
 pacer = visual.Circle(win=win, radius = 20, fillColor='blue') # little blue dot 
-fixationView= visual.Circle(win=win, radius = 40, fillColor='red', pos=(-620,350)) # big red circle
+fixationView= visual.Circle(win=win, radius = 40, fillColor='red', pos=(-550,300)) # big red circle
 
 
 wrongText=visual.TextStim(win=win, height=40, 
                  text="Look at the template again and give it another try.",
+                 color='black') # for when they make a mistake and have to press again
+
+wrongTextb=visual.TextStim(win=win, height=40, 
+                 text="Try press all keys at the same time.",
                  color='black') # for when they make a mistake and have to press again
 
 
@@ -112,10 +125,10 @@ fixationCross= visual.ShapeStim(win, vertices=((0, -80), (0, 80), (0,0),
 
 
 # 4 pictures (the exact images set later in the code), at 4 different positions from top to bottom of screen 
-pic1 = visual.ImageStim(win=win, mask=None,interpolate=True,pos=(0,350), size=(1200,300))
+pic1 = visual.ImageStim(win=win, mask=None,interpolate=True,pos=(0,300), size=(1200,300))
 pic2 = visual.ImageStim(win=win, mask=None,interpolate=True,pos=(0,100), size=(1200,300))
-pic3 = visual.ImageStim(win=win, mask=None,interpolate=True,pos=(0,-150), size=(1200,300))
-pic4 = visual.ImageStim(win=win, mask=None,interpolate=True,pos=(0,-400), size=(1200,300))
+pic3 = visual.ImageStim(win=win, mask=None,interpolate=True,pos=(0,-100), size=(1200,300))
+pic4 = visual.ImageStim(win=win, mask=None,interpolate=True,pos=(0,-300), size=(1200,300))
 
 
 # picture in the center for the initial phase where they practice each word separately
@@ -127,7 +140,7 @@ centerPic = visual.ImageStim(win=win, mask=None,interpolate=True,pos=(0,0), size
 # general instructions object, nothing written on it - needs
 # to be set with the numbered instructions that follow:
 instruct = visual.TextStim(win=win, height=35, 
-                 color='black', wrapWidth = 1000, pos = (0,250), alignHoriz='center', 
+                 color='black', wrapWidth = 1000, pos = (0,150), alignHoriz='center', 
                  alignVert='center')
 
 # intructions for the first part
@@ -145,20 +158,17 @@ instruct1b =  visual.TextStim(win=win, height=35,
 
 
 # different instructions that can be set for the general "instruct" object
-instruct2 = "Great! Let's keep practicing. \nThis time there will be no feedback, but make sure to \
+instruct2 = "Great! Let's keep practicing. \n\n\nThis time there will be no feedback, but make sure to \
 pay attention and press the correct keys."
-instruct3 = "Nice work! \nNow we can begin with full trials. Every trial\
- consists of four templates. First\
- you will have them appear one at a time\
-like you just practiced."
+instruct3 = "Nice work! \nNow we can begin with full trials. \n\n Every trial\
+ consists of four templates. First you will have them appear one at a time like you just practiced."
 instruct4 = "Then, all 4 templates will \
  appear on the screen at once. \nOn the left side of the screen you will see a \
  red circle. After 2 seconds the red circle will disappear, and a small blue\
  circle will appear near the first template. \n\nThe blue circle is \
  your cue - when it appears next to a template, you press the correct keys \
  for that template. The order will always be the same, from top to bottom, \
- but you must keep up with the speed of the blue circle. \n Let's start \
- with a few trials as an example."
+ but you must keep up with the speed of the blue circle."
 
 # for participants to press 'c' when they've read instructions on that page
 # and are ready to continue:
@@ -167,6 +177,13 @@ cToBegin =  visual.TextStim(win=win, height=35,
                  color='black', wrapWidth = 1000, pos = (0,-200), alignHoriz='center', 
                  alignVert='center')
 
+
+# column names for our results file
+
+headers=["trialNum", "trialType", "itemID", "rep", "wordInd", "curWord", 
+                        "expKeys", "pressedKeys", 
+                        "acc", "RT", "countCorrect", "correctKeys", 
+                        "addedKeys", "missingKeys"]
 
 
 ###################################################################################
@@ -232,13 +249,20 @@ def learn (curWord): # presents template to be pressed, if wrong - says so and r
         win.flip()
         start = time.clock()
         react = False
+        interval = False   #TODO
+        end = 0
         #### getting responses ####
     
         while len(pressedKeys) < len(expKeys):
+            if react:
+                intervalTimer = time.clock()
+                if (intervalTimer - end) > intervalTime:  #TODO
+                    interval = True
+                    break
             getKeys = event.getKeys(keyList=keys)
             if react == False and len(getKeys) != 0: # if we haven't collected RTs yet
                 end = time.clock() 
-                RT = (end - start) * 1000 # check how much time passed since we started the RT clock
+                RT = (end - start) * 1000  # check how much time passed since we started the RT clock
                 react = True 
             pressedKeys.extend(getKeys)    
             
@@ -253,14 +277,19 @@ def learn (curWord): # presents template to be pressed, if wrong - says so and r
         accKeys = "".join([x for x in pressedKeys if x in expKeys])                    
         expKeys = "".join(expKeys)
         Acc = 1 if expKeys==pressedKeys else 0 # accuracy is 1 if all and only correct keys were pressed
-        string=[str(var) for var in subject, curWord, # collect the info we want to keep
-                            expKeys, pressedKeys, Acc, RT, accKeys, add, miss]       
+        string=[str(var) for var in subject, "trialType", "trialID",
+                        "rep", "wordInd", curWord,
+                        expKeys, pressedKeys, Acc, RT,  
+                        len(accKeys), accKeys, add, miss]      
         print string
         line='\t'.join(string) + '\n'
         resultsFile.write(line)
         resultsFile.flush()
         if Acc == 0: # if accuracy is wrong, 
-            wrongText.draw() # present screen saying they should try again +
+            if interval:
+                wrongTextb.draw() #TODO
+            else:
+                wrongText.draw() # present screen saying they should try again +
             win.flip()
             core.wait(2)
             for i in transKeys.keys(): # return to coded word
@@ -278,8 +307,8 @@ def learn (curWord): # presents template to be pressed, if wrong - says so and r
        
 
 
-with open(subject+'_fam'+'_FF.csv','wb') as resultsFile: # opens new results file in current directory
-    Rwriter=csv.DictWriter(resultsFile, fieldnames= None)
+with open(subject+'_fam'+'_FF.txt','wb') as resultsFile: # opens new results file in current directory
+    Rwriter=csv.DictWriter(resultsFile, fieldnames = headers)
     ccClick = False 
     while not ccClick: # present the following intrsuction screen (includes a pic as an example), until 'c' is pressed
         centerPic.setImage('stimShots_FF/'+'treeb'+'_FF.png')
@@ -305,8 +334,7 @@ with open(subject+'_fam'+'_FF.csv','wb') as resultsFile: # opens new results fil
         
         wordInd = 0 # keeps track of what word number we're at within the trial (1-4)
         set4() # sets the 4 images in place
-        for curWord in trial['fullTrial'].split(): # goes through each of the 4 words in the trial
-            temp = event.getKeys(keyList=keys)
+        for curWord in trial['fullTrial'].split(): # goes through each of the 4 words in the trial     
             core.wait(0.1) 
             wordInd += 1
             pressedKeys = [] # keys that subject pressed
@@ -322,16 +350,23 @@ with open(subject+'_fam'+'_FF.csv','wb') as resultsFile: # opens new results fil
             if curWord[0] == 'R':
                 expKeys.append('1')
             expKeys = sorted(expKeys, key = lambda x:  srtMap[x])
-            
             wordByWord() # draw the correct word based on index (1,2,3,4) 
-            
+            temp = event.getKeys(keyList=keys)
             win.flip()     
             
             # getting responses and reaction time - first zero all variables
             RT = 'NA'
-            getKeys = event.waitKeys(keyList=keys)
-            pressedKeys.extend(getKeys)    
-            event.clearEvents()
+            start = time.clock()
+            react = False
+            #### getting responses ####
+        
+            while len(pressedKeys) < len(expKeys):
+                getKeys = event.getKeys(keyList=keys)
+                if react == False and len(getKeys) != 0: # if we haven't collected RTs yet
+                    end = time.clock() 
+                    RT = (end - start) * 1000  # check how much time passed since we started the RT clock
+                    react = True 
+                pressedKeys.extend(getKeys)  
             pressedKeys = (sorted(set(pressedKeys), key = lambda x:  srtMap[x]))
             pressedKeys ="".join(pressedKeys)              
             # data written to file + format changes to make it easily readable in excel (lists of pressed keys 
@@ -342,12 +377,15 @@ with open(subject+'_fam'+'_FF.csv','wb') as resultsFile: # opens new results fil
             miss = "".join(sorted(miss, key = lambda x:  srtMap[x])) # sort them by keyboard space
             accKeys = "".join([x for x in pressedKeys if x in expKeys])                    
             expKeys = "".join(expKeys)
+            
             Acc = 1 if expKeys==pressedKeys else 0
-            string=[str(var) for var in trial['type'], trial['ID'], 
-                    wordInd, curWord, 
-                    expKeys, pressedKeys, Acc, RT,  
-                    len(accKeys), accKeys, add, miss]              
-            print string
+            string=[str(var) for var in subject, trial['type'], trial['ID'], 
+                        "rep", wordInd, curWord,
+                        expKeys, pressedKeys, Acc, RT,  
+                        len(accKeys), accKeys, add, miss]              
+            line='\t'.join(string) + '\n'
+            resultsFile.write(line)
+            resultsFile.flush()
             
     cClick (instruct3) # shows first instructions for next part and wait's for 'c'
     cClick (instruct4) # shows second instructions for next part and wait's for 'c'
@@ -362,7 +400,6 @@ with open(subject+'_fam'+'_FF.csv','wb') as resultsFile: # opens new results fil
         rep = 0 # rep 0 means it's the word-by-word presentation at the beginnign
         win.flip()
         for curWord in trial['fullTrial'].split(): # goes through each word in current trial
-            temp = event.getKeys(keyList=keys)
             core.wait(0.1)
             wordInd += 1
             # zeroing all variables:
@@ -372,8 +409,7 @@ with open(subject+'_fam'+'_FF.csv','wb') as resultsFile: # opens new results fil
             pressedWord = [] # translates key presses into corresponding word
             pressedUnits = [] # not important
             add = [] # keys pressed that were not in word
-            miss = [] # keys not pressed
-            RT = 'NA' # reaction time, to be defined later            
+            miss = [] # keys not pressed         
             expKeys = [capKeys[curWord[0]], capKeys[curWord[1:]]] # define correct answer keys per word
             if curWord[0] == 'L': # for words with consonant cluster, add first consonant key to be expected too
                 expKeys.append('3') # this is hard coded, see if there's a better way...
@@ -381,11 +417,20 @@ with open(subject+'_fam'+'_FF.csv','wb') as resultsFile: # opens new results fil
                 expKeys.append('1')
             expKeys = sorted(expKeys, key = lambda x:  srtMap[x])
             wordByWord() # function we defined before, making sure only one word is presented at a time, in it's corresponding place from top to bottom
+            temp = event.getKeys(keyList=keys)
             win.flip()  
             # getting responses and reaction time:       
+            start = time.clock()
+            react = False
+            #### getting responses ####
+        
             while len(pressedKeys) < len(expKeys):
-                getKeys = event.waitKeys(keyList=keys) 
-                pressedKeys.extend(getKeys)    
+                getKeys = event.getKeys(keyList=keys)
+                if react == False and len(getKeys) != 0: # if we haven't collected RTs yet
+                    end = time.clock() 
+                    RT = (end - start) * 1000  # check how much time passed since we started the RT clock
+                    react = True 
+                pressedKeys.extend(getKeys)  
             event.clearEvents()
             pressedKeys = (sorted(set(pressedKeys), key = lambda x:  srtMap[x]))
             pressedKeys ="".join(pressedKeys)              
@@ -408,7 +453,7 @@ with open(subject+'_fam'+'_FF.csv','wb') as resultsFile: # opens new results fil
             expKeys = "".join(expKeys)
             Acc = 1 if expKeys==pressedKeys else 0
             string=[str(var) for var in subject, trial['type'], trial['ID'],  # collect all the info we're interested in
-                    rep, wordInd, curWord, pressedWord, 
+                    rep, wordInd, curWord, 
                     expKeys, pressedKeys, Acc, RT,  
                     len(accKeys), accKeys, add, miss]              
             print string 
@@ -431,7 +476,7 @@ with open(subject+'_fam'+'_FF.csv','wb') as resultsFile: # opens new results fil
             temp = event.getKeys(keyList=keys)
             wordInd=0 # index of word within trial (first word, second...)
             draw4()
-            pacer.pos = (-550,350) # sets little blue dot at first word
+            pacer.pos = (-550,300) # sets little blue dot at first word
             pacer.draw()
             win.flip()
             for curWord in trial['fullTrial'].split():
@@ -451,6 +496,7 @@ with open(subject+'_fam'+'_FF.csv','wb') as resultsFile: # opens new results fil
                 expKeys = sorted(expKeys, key = lambda x:  srtMap[x])
                 draw4()
                 pacer.draw()
+                temp = event.getKeys(keyList=keys)
                 win.flip()
                 pacerTime=core.Clock() # starts counting for when the blue dot should move   
                 start = time.clock() # starts counting for reaction times
@@ -465,7 +511,7 @@ with open(subject+'_fam'+'_FF.csv','wb') as resultsFile: # opens new results fil
                         if len(getKeys) != 0: # if they pressed more than one key
                             if react == False: # if we haven't collected RTs yet
                                 end = time.clock() 
-                                RT = (end - start) * 1000 # check how much time passed since we started the RT clock
+                                RT = (end - start) * 1000  # check how much time passed since we started the RT clock
                                 react = True 
                         pressedKeys.extend(getKeys)   # add whatever keys are pressed to the "pressedKeys"  
                     else:
@@ -497,7 +543,7 @@ with open(subject+'_fam'+'_FF.csv','wb') as resultsFile: # opens new results fil
                 line='\t'.join(string) + '\n'
                 resultsFile.write(line)
                 resultsFile.flush()
-                pacer.pos -=(0,250)
+                pacer.pos -=(0,200)
  
                                       
         fixationCross.draw()
