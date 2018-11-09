@@ -17,9 +17,8 @@ pacerTempo = 1.2 # speed for first
 
 ########$ interval time limit ####
 
-intervalTime = 1 #TODO
+intervalTime = 1   #TODO
 
-##################################
 ##################################
 
 import random
@@ -113,7 +112,7 @@ wrongText=visual.TextStim(win=win, height=40,
                  text="Look at the template again and give it another try.",
                  color='black') # for when they make a mistake and have to press again
 
-wrongTextb=visual.TextStim(win=win, height=40, 
+wrongTextb=visual.TextStim(win=win, height=40, #TODO
                  text="Try press all keys at the same time.",
                  color='black') # for when they make a mistake and have to press again
 
