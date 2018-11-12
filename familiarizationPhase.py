@@ -77,12 +77,14 @@ for trial in trialsList:
 # first set of 8 practice trials - where they only go through the 4 words one-by-one from top to bottom at their own speed
 # takes every 4th trials from trialsList (unique set of four words - take a look at the trials csv file to understand)
 exTrials1 = [i for i in trialsList if int(i['ID']) in range(1,32,4)]
+random.shuffle(exTrials1)
 
 # 16 trials for FULL practice - both word-by-word and paced by the blue circle:
 # 8 of these will be TT, 8 NON (in our trials file, 1-16 are TT, 17-32 are NON)
 exTTtrials = [i for i in trialsList if int(i['ID']) in range(2,16,2)] # 8 TT examples
 exNONtrials = [i for i in trialsList if int(i['ID']) in range(18,32,2)] # NON examples
 exTrials2 =  exTTtrials + exNONtrials # combine TT and NON for full set of example trials
+random.shuffle(exTrials2)
 
 
 
