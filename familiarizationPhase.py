@@ -1,7 +1,7 @@
 ##################################
 ########fill in subject ID #######
 
-subject =''
+subject ='003'
 
 
 ##################################
@@ -17,7 +17,7 @@ pacerTempo = 1.2 # speed for first
 
 ########$ interval time limit ####
 
-intervalTime = 1   #TODO
+intervalTime = 1   
 
 ##################################
 
@@ -114,8 +114,8 @@ wrongText=visual.TextStim(win=win, height=40,
                  text="Look at the template again and give it another try.",
                  color='black') # for when they make a mistake and have to press again
 
-wrongTextb=visual.TextStim(win=win, height=40, #TODO
-                 text="Try press all keys at the same time.",
+wrongTextb=visual.TextStim(win=win, height=40,
+                 text="Try pressing all keys at the same time.",
                  color='black') # for when they make a mistake and have to press again
 
 
@@ -228,11 +228,12 @@ def cClick (instructName): # displays instructions and waits for 'c' press - fee
 
 def learn (curWord): # presents template to be pressed, if wrong - says so and returns to word
     while True:
+        stage = 'stage 1'
         RT = 'NA'
         pressedKeys = []
         accKeys=[]
         add = []
-        miss = []           
+        miss = []       
         expKeys = [capKeys[curWord[0]], capKeys[curWord[1:]]] # define correct answer keys per word
         if curWord[0] == 'L': # for words with consonant cluster, add first consonant key to be expected too
             expKeys.append('3') # this is hard coded, see if there's a better way...
@@ -250,14 +251,14 @@ def learn (curWord): # presents template to be pressed, if wrong - says so and r
         win.flip()
         start = time.clock()
         react = False
-        interval = False   #TODO
+        interval = False
         end = 0
         #### getting responses ####
     
         while len(pressedKeys) < len(expKeys):
             if react:
                 intervalTimer = time.clock()
-                if (intervalTimer - end) > intervalTime:  #TODO
+                if (intervalTimer - end) > intervalTime:
                     interval = True
                     break
             getKeys = event.getKeys(keyList=keys)
@@ -273,12 +274,16 @@ def learn (curWord): # presents template to be pressed, if wrong - says so and r
         pressedKeys ="".join(pressedKeys)              
         add = set(pressedKeys) - set(pressedKeys) # key additions
         add = "".join(sorted(add, key = lambda x:  srtMap[x])) # sort them by keyboard space
+        if len(add) == 0:
+            add = 'NA'
         miss = set(expKeys) - set(pressedKeys) # key omissions
         miss = "".join(sorted(miss, key = lambda x:  srtMap[x])) # sort them by keyboard space
+        if len(miss) == 0:
+            miss = 'NA'
         accKeys = "".join([x for x in pressedKeys if x in expKeys])                    
         expKeys = "".join(expKeys)
         Acc = 1 if expKeys==pressedKeys else 0 # accuracy is 1 if all and only correct keys were pressed
-        string=[str(var) for var in subject, "trialType", "trialID",
+        string=[str(var) for var in subject, stage, 'trialNum', "trialType", "trialID",
                         "rep", "wordInd", curWord,
                         expKeys, pressedKeys, Acc, RT,  
                         len(accKeys), accKeys, add, miss]      
@@ -288,7 +293,7 @@ def learn (curWord): # presents template to be pressed, if wrong - says so and r
         resultsFile.flush()
         if Acc == 0: # if accuracy is wrong, 
             if interval:
-                wrongTextb.draw() #TODO
+                wrongTextb.draw()
             else:
                 wrongText.draw() # present screen saying they should try again +
             win.flip()
@@ -332,7 +337,7 @@ with open(subject+'_fam'+'_FF.txt','wb') as resultsFile: # opens new results fil
     # from top to bottom (the way they will be later in the full trials)
  
     for trial in exTrials1: # goes through the 5 random trials we chose earlier
-        
+        stage = 'stage 2'
         wordInd = 0 # keeps track of what word number we're at within the trial (1-4)
         set4() # sets the 4 images in place
         for curWord in trial['fullTrial'].split(): # goes through each of the 4 words in the trial     
@@ -374,13 +379,17 @@ with open(subject+'_fam'+'_FF.txt','wb') as resultsFile: # opens new results fil
             # will appear as strings):               
             add = set(pressedKeys) - set(expKeys) # key additions
             add = "".join(sorted(add, key = lambda x:  srtMap[x])) # sort them by keyboard space
+            if len(add) == 0:
+                add = 'NA'
             miss = set(expKeys) - set(pressedKeys) # key omissions
             miss = "".join(sorted(miss, key = lambda x:  srtMap[x])) # sort them by keyboard space
+            if len(miss) == 0:
+                miss = 'NA'
             accKeys = "".join([x for x in pressedKeys if x in expKeys])                    
             expKeys = "".join(expKeys)
             
             Acc = 1 if expKeys==pressedKeys else 0
-            string=[str(var) for var in subject, trial['type'], trial['ID'], 
+            string=[str(var) for var in subject, stage, 'trialNum', trial['type'], trial['ID'], 
                         "rep", wordInd, curWord,
                         expKeys, pressedKeys, Acc, RT,  
                         len(accKeys), accKeys, add, miss]              
@@ -392,11 +401,14 @@ with open(subject+'_fam'+'_FF.txt','wb') as resultsFile: # opens new results fil
     cClick (instruct4) # shows second instructions for next part and wait's for 'c'
 
     ####### beginning full trial practice ########
+    trialNum = 0
     for trial in exTrials2: # goes through the random 5 trials they'll be practicing
         fixationCross.draw()
         win.flip()
         core.wait(1)
         set4()
+        trialNum += 1
+        stage = 'stage 3'
         wordInd=0 # index of word within trial (first word, second...)
         rep = 0 # rep 0 means it's the word-by-word presentation at the beginnign
         win.flip()
@@ -448,12 +460,16 @@ with open(subject+'_fam'+'_FF.txt','wb') as resultsFile: # opens new results fil
             # will appear as strings):               
             add = set(pressedKeys) - set(expKeys) # key additions
             add = "".join(sorted(add, key = lambda x:  srtMap[x])) # sort them by keyboard space
+            if len(add) == 0:
+                add = 'NA'
             miss = set(expKeys) - set(pressedKeys) # key omissions
             miss = "".join(sorted(miss, key = lambda x:  srtMap[x])) # sort them by keyboard space
+            if len(miss) == 0:
+                miss = 'NA'
             accKeys = "".join([x for x in pressedKeys if x in expKeys])                    
             expKeys = "".join(expKeys)
             Acc = 1 if expKeys==pressedKeys else 0
-            string=[str(var) for var in subject, trial['type'], trial['ID'],  # collect all the info we're interested in
+            string=[str(var) for var in subject, stage, trialNum, trial['type'], trial['ID'],  # collect all the info we're interested in
                     rep, wordInd, curWord, 
                     expKeys, pressedKeys, Acc, RT,  
                     len(accKeys), accKeys, add, miss]              
@@ -531,12 +547,16 @@ with open(subject+'_fam'+'_FF.txt','wb') as resultsFile: # opens new results fil
                 # will appear as strings):               
                 add = set(pressedKeys) - set(expKeys) # key additions
                 add = "".join(sorted(add, key = lambda x:  srtMap[x])) # sort them by keyboard space
+                if len(add) == 0:
+                    add = 'NA'
                 miss = set(expKeys) - set(pressedKeys) # key omissions
                 miss = "".join(sorted(miss, key = lambda x:  srtMap[x])) # sort them by keyboard space
+                if len(miss) == 0:
+                    miss = 'NA'
                 accKeys = "".join([x for x in pressedKeys if x in expKeys])                    
                 expKeys = "".join(expKeys)
                 Acc = 1 if expKeys==pressedKeys else 0
-                string=[str(var) for var in subject, trial['type'], trial['ID'], 
+                string=[str(var) for var in subject, stage, trialNum, trial['type'], trial['ID'], 
                         rep, wordInd, curWord,
                         expKeys, pressedKeys, Acc, RT,  
                         len(accKeys), accKeys, add, miss]              
